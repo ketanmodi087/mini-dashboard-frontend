@@ -16,6 +16,8 @@ const Leads = () => {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortColumn, setSortColumn] = useState<"name" | "company" | "email" | "lead_status" | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -75,6 +77,17 @@ const Leads = () => {
     resetForm();
   };
 
+  const handleSort = (column: "name" | "company" | "email" | "lead_status") => {
+    if (sortColumn === column) {
+      // Toggle direction if clicking the same column
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new column and default to ascending
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
   const filteredLeads = leads.filter((lead) => {
     const searchLower = search.toLowerCase();
     const matchesSearch =
@@ -85,6 +98,39 @@ const Leads = () => {
     const matchesStatus = statusFilter === "all" || lead.lead_status === statusFilter;
 
     return matchesSearch && matchesStatus;
+  });
+
+  const sortedLeads = [...filteredLeads].sort((a, b) => {
+    if (!sortColumn) return 0;
+
+    let aValue: string | number;
+    let bValue: string | number;
+
+    switch (sortColumn) {
+      case "name":
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+        break;
+      case "company":
+        aValue = a.company.toLowerCase();
+        bValue = b.company.toLowerCase();
+        break;
+      case "email":
+        aValue = a.email.toLowerCase();
+        bValue = b.email.toLowerCase();
+        break;
+      case "lead_status":
+        // Sort status: "active" comes before "inactive"
+        aValue = a.lead_status === "active" ? 0 : 1;
+        bValue = b.lead_status === "active" ? 0 : 1;
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    return 0;
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -193,34 +239,202 @@ const Leads = () => {
                 <thead className="bg-white border-b border-gray-200">
                   <tr>
                     <th
-                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider"
+                      onClick={() => handleSort("name")}
+                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider cursor-pointer hover:bg-gray-50 transition-colors select-none"
                       style={{ color: "#1e3a5f" }}
                     >
-                      Name
+                      <div className="flex items-center gap-2">
+                        Name
+                        {sortColumn === "name" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            {sortDirection === "asc" ? (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 15l7-7 7 7"
+                              />
+                            ) : (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            )}
+                          </svg>
+                        )}
+                        {sortColumn !== "name" && (
+                          <svg
+                            className="w-4 h-4 opacity-30"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider"
+                      onClick={() => handleSort("company")}
+                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider cursor-pointer hover:bg-gray-50 transition-colors select-none"
                       style={{ color: "#1e3a5f" }}
                     >
-                      Company
+                      <div className="flex items-center gap-2">
+                        Company
+                        {sortColumn === "company" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            {sortDirection === "asc" ? (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 15l7-7 7 7"
+                              />
+                            ) : (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            )}
+                          </svg>
+                        )}
+                        {sortColumn !== "company" && (
+                          <svg
+                            className="w-4 h-4 opacity-30"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider"
+                      onClick={() => handleSort("email")}
+                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider cursor-pointer hover:bg-gray-50 transition-colors select-none"
                       style={{ color: "#1e3a5f" }}
                     >
-                      Email
+                      <div className="flex items-center gap-2">
+                        Email
+                        {sortColumn === "email" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            {sortDirection === "asc" ? (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 15l7-7 7 7"
+                              />
+                            ) : (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            )}
+                          </svg>
+                        )}
+                        {sortColumn !== "email" && (
+                          <svg
+                            className="w-4 h-4 opacity-30"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     </th>
                     <th
-                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider"
+                      onClick={() => handleSort("lead_status")}
+                      className="px-6 py-4 text-xs font-semibold uppercase tracking-wider cursor-pointer hover:bg-gray-50 transition-colors select-none"
                       style={{ color: "#1e3a5f" }}
                     >
-                      Status
+                      <div className="flex items-center gap-2">
+                        Status
+                        {sortColumn === "lead_status" && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            {sortDirection === "asc" ? (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 15l7-7 7 7"
+                              />
+                            ) : (
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            )}
+                          </svg>
+                        )}
+                        {sortColumn !== "lead_status" && (
+                          <svg
+                            className="w-4 h-4 opacity-30"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     </th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-200">
-                  {filteredLeads.length === 0 ? (
+                  {sortedLeads.length === 0 ? (
                     <tr>
                       <td
                         colSpan={4}
@@ -230,7 +444,7 @@ const Leads = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredLeads.map((lead) => (
+                    sortedLeads.map((lead) => (
                       <tr
                         key={lead.id}
                         className="hover:bg-gray-50 transition-colors"
